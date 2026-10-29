@@ -68,7 +68,7 @@ uv add 'mcp[cli]>=1.28,<2' --python 3.13.14 --project "E:\python workspace\mcp-s
 - 安装时出现跨磁盘无法硬链接的提示，uv 自动回退复制，安装成功，没有关闭任何依赖校验。
 - `--no-workspace` 提示未发现父工作区，为非错误提示。
 
-本次通过 PowerShell `Set-Content -LiteralPath ... -Encoding utf8` 创建或修改：
+本次创建或修改的文件如下；普通文本使用 PowerShell `Set-Content -LiteralPath ... -Encoding utf8` 写入，`.python-version` 由 `uv python pin` 更新，`uv.lock` 由 uv 生成：
 
 | 文件 | 用途 |
 | --- | --- |
@@ -141,3 +141,59 @@ uv run --locked python main.py
 - 调用 `collaboration.spawn_agent` 创建一个只读审查子代理 `review_mcp_init`，核对配置、忽略规则、文档与命令，不授权修改或联网，也不读取凭据。它使用的终端检查属于上表的 `functions.exec` / `tools.exec_command`。
 - 本次实际调用的 MCP 工具为 `mcp__codex_app__open_in_codex`（Codex app MCP）。参数仅为本记录文件路径，用于在当前聊天面板展示文档；返回 `status=queued`。这只表示已排队打开，没有宣称用户界面已立即显示。
 - 未调用其他 MCP 服务，也没有安装、启用任何额外 Codex 插件。
+
+
+## 只读审查结论（已完成）
+
+审查没有发现环境版本、依赖范围或敏感文件忽略问题。修正一处文档表述：`uv.lock` 由 uv 生成，不能笼统说成所有文件都由 `Set-Content` 写入。
+
+子代理的首次 Git 只读检查遇到沙箱账号与仓库拥有者不同的安全检查；随后使用命令级 `git -c safe.directory=... --no-optional-locks` 完成读取，没有修改全局 safe.directory、仓库文件或凭据，也没有联网。
+
+## Git 提交与首次推送结果（已完成）
+
+```powershell
+git remote add origin https://github.com/UIYGYU/mcp-start.git
+git add -- .gitignore .python-version .env.example .vscode/settings.json pyproject.toml uv.lock main.py README.md docs/SETUP_LOG.md
+git diff --cached --check
+git diff --cached --stat
+git commit -m "chore: initialize Python 3.13 MCP learning project"
+git push -u origin main
+```
+
+- 实际配置 origin 前先检查已有 remote，若发现不同地址则停止，不覆盖其他远端。
+- 暂存检查通过，共 9 个文件。
+- Git 对文本提示将来可能进行 LF/CRLF 转换，属于换行符提示，没有提交失败。
+- 初始化提交成功：`7a25c7e231e9191e259eba3502f0973f9b55f528`。
+- 第一次普通推送失败：`TLS connect error / unexpected eof while reading`，代码提交已保存在本地。
+- 未关闭 SSL/TLS 验证，未修改 Git 全局网络配置，未重新初始化仓库。
+
+随后执行：
+
+```powershell
+git -c http.version=HTTP/1.1 push -u origin main
+git status --short
+git ls-remote --heads origin main
+```
+
+推送成功，`main` 已跟踪 `origin/main`；远程 main 指向初始化提交，工作区在当时干净。
+
+## 操作记录封存与交付
+
+为让后续在本仓库运行普通 `git push` 时也使用已成功的 HTTP/1.1，将仅设置本仓库的 `http.version`，HTTPS 和证书校验继续生效。该本地 Git 配置不写入全局配置，也不会随代码上传。
+
+本记录最后的更新通过独立文档提交封存，固定执行步骤如下：
+
+```powershell
+git config --local http.version HTTP/1.1
+git add -- docs/SETUP_LOG.md
+git diff --cached --check
+git commit -m "docs: record setup verification and GitHub publishing"
+git push
+git status --short
+git rev-parse HEAD
+git ls-remote --heads origin main
+```
+
+交付前还会通过相同的内存凭据流程只读调用 GitHub REST API，核对仓库仍为 `private=true`、默认分支为 `main`，并将远程分支 SHA 与本地 HEAD 比较。文档自身的封存提交 SHA 可从 `git log` 查询，不硬编码到本记录中。
+
+本记录包含全部工具种类及实际执行的初始化、检查、写文件、GitHub 创建、失败重试、提交推送、审查和文档展示操作。重复读取/权限重试已合并说明；没有记录密钥或将完整认证响应保存到文档。后续任务若继续改动，请按日期追加工具、命令和结果。
