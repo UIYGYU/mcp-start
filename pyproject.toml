@@ -1,0 +1,9 @@
+[project]
+name = "mcp-start"
+version = "0.1.0"
+description = "MCP learning exercises based on MCP for Beginners"
+readme = "README.md"
+requires-python = ">=3.13,<3.14"
+dependencies = [
+    "mcp[cli]>=1.28,<2",
+]

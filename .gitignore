@@ -1,0 +1,34 @@
+# Python and build artifacts
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+build/
+dist/
+*.egg-info/
+
+# Local virtual environments
+.venv/
+venv/
+
+# Secrets and local configuration
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# Runtime output and captures
+logs/
+*.log
+artifacts/
+*.pcap
+*.pcapng
+
+# Editor/OS local files
+.idea/
+.DS_Store
+Thumbs.db
