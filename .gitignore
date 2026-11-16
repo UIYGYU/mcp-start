@@ -13,6 +13,7 @@ dist/
 # Local virtual environments
 .venv/
 venv/
+.vscode/mcp.json
 
 # Secrets and local configuration
 .env
