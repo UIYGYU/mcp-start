@@ -5,5 +5,9 @@ description = "MCP learning exercises based on MCP for Beginners"
 readme = "README.md"
 requires-python = ">=3.13,<3.14"
 dependencies = [
-    "mcp[cli]>=1.28,<2",
+    "mcp[cli]>=2.3,<3",
+    "openai>=3.42.0",
+    "python-dotenv>=1.2.4",
+    "redis>=8.1.0",
+    "tavily-python>=0.8.5",
 ]

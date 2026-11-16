@@ -1,0 +1,18 @@
+name: mcp-start-mqtt-lab
+
+services:
+  broker:
+    # Official image, verified Mosquitto 2.1.2; digest fixes the downloaded build.
+    image: eclipse-mosquitto@sha256:860aeb5d63ce509508f6dcfb2bc8a1c1dd2bc60555b562b45ce90e52d8dabb0f
+    container_name: mcp-start-mqtt
+    init: true
+    ports:
+      - "127.0.0.1:1883:1883"
+    volumes:
+      - ./config:/mosquitto/config:ro
+    restart: "no"
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
